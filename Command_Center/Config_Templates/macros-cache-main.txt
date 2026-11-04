@@ -1,0 +1,38 @@
+VER 3 0000000000000001 "DualTrack" "INV_MISC_QUESTIONMARK"
+#showtooltip
+/castsequence !Find Herbs, !Find Minerals
+END
+VER 3 0000000000000002 "BlizzCursor" "INV_MISC_QUESTIONMARK"
+#showtooltip Blizzard
+/cast [@cursor] Blizzard
+END
+VER 3 0000000000000003 "FlameCursor" "INV_MISC_QUESTIONMARK"
+#showtooltip Flamestrike
+/cast [@cursor] Flamestrike
+END
+VER 3 0000000000000004 "PvPDisengage" "INV_MISC_QUESTIONMARK"
+#showtooltip Polymorph
+/stopcasting
+/cast [mod:shift,@focus] Polymorph; Polymorph
+END
+VER 3 0000000000000005 "R1Slow" "INV_MISC_QUESTIONMARK"
+#showtooltip Frostbolt(Rank 1)
+/cast Frostbolt(Rank 1)
+END
+VER 3 0000000000000006 "PanicBlock" "INV_MISC_QUESTIONMARK"
+#showtooltip Ice Block
+/stopcasting
+/cancelaura [mod:ctrl] Ice Block
+/cast Ice Block
+END
+VER 3 0000000000000007 "WandShoot" "INV_MISC_QUESTIONMARK"
+#showtooltip Shoot
+/cast !Shoot
+END
+VER 3 0000000000000008 "MailDump" "INV_MISC_QUESTIONMARK"
+/fgmail
+END
+VER 3 0000000000000009 "QiaTarget" "INV_MISC_QUESTIONMARK"
+/tar Qia
+/tar Wixxrak
+END

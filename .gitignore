@@ -1,0 +1,11 @@
+# Temporary files
+*.tmp
+*.log
+__pycache__/
+*.pyc
+
+# Local clips and video captures
+Command_Center/Media_Pipeline/test_clips/
+*.mp4
+*.avi
+*.mkv

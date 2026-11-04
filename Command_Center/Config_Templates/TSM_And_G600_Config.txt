@@ -1,0 +1,68 @@
+================================================================================
+WOW: FOREVER - TSM & LOGITECH G600 HARDWARE MAPPING CONFIGURATION
+Vanguard Speedrun Suite - Single Unified Bankroll
+================================================================================
+
+--------------------------------------------------------------------------------
+1. TRADE SKILL MASTER (TSM) CONFIGURATION STRINGS
+--------------------------------------------------------------------------------
+
+[TSM Vendor Arbitrage Shopping String]
+maxprice: vendorsell - 10c
+
+Description: Scans the Auction House for any item priced lower than its raw vendor 
+sell value minus 10 copper. Instant risk-free margin via auto-buy and auto-vendor.
+
+[TSM Fresh Server Day 1-5 Blind Sniper String]
+min(vendorsell - 10c, 3g)
+
+Description: Fast sniper rule for early economy. Catches mispriced epics, scarce 
+materials, and vendor-arbitrage items listed under 3 gold during the Day 1-5 rush.
+
+--------------------------------------------------------------------------------
+2. ERGONOMIC FOUNDATION & MOVEMENT
+--------------------------------------------------------------------------------
+
+[Left Hand Keyboard Foundation]
+- Primary Combat Spells: Q W E R T and A S D F G (Legion DH muscle memory preservation)
+- Secondary Defensive/CC Layer: Palm pressing Left Ctrl + [Q/W/E/R/T/A/S/D/F/G]
+
+[Movement & Strafe Lock-in]
+- Forward Movement: Double Mouse Button Hold (Left + Right Click steer)
+- Strafe Left: G600 Scroll Wheel Tilt Left -> mapped to [ (bind to Strafe Left in WoW)
+- Strafe Right: G600 Scroll Wheel Tilt Right -> mapped to ] (bind to Strafe Right in WoW)
+  (Thumb backup: C = Strafe Left, V = Strafe Right)
+
+--------------------------------------------------------------------------------
+3. LOGITECH G600 G-HUB HARDWARE PROFILE MAPPING
+--------------------------------------------------------------------------------
+
+[G600 Base Thumb Grid (Buttons 1 to 12)]
+Physical Thumb Grid mapped to 1 through = :
+- Button G9  (Key 1) : @cursor Blizzard
+- Button G10 (Key 2) : @cursor Flamestrike (3-6 mob cleave finisher)
+- Button G11 (Key 3) : Rank 1 Frostbolt (Instant snare / disengage)
+- Button G12 (Key 4) : Polymorph (Target / Focus)
+- Button G13 (Key 5) : Wand !Shoot (5-second mana rule finisher)
+- Button G14 (Key 6) : DualTrack Herbs & Minerals (/castsequence !Find Herbs, !Find Minerals)
+- Button G15 (Key 7) : Escape Artist (Gnome racial 3s snare break)
+- Button G16 (Key 8) : Eureka! / Racial Buff
+- Button G17 (Key 9) : Blink
+- Button G18 (Key 0) : Counterspell
+- Button G19 (Key -) : Mana Shield / Ice Barrier
+- Button G20 (Key =) : Health / Mana Potion
+
+[G600 G-Shift Ring Finger Layer (G-Shift + Buttons 1 to 12)]
+Holding the third/ring-finger button on the G600 activates the G-Shift layer:
+- G-Shift + G9  (F1)  : Mount (Lvl 40 60% / Lvl 60 100%)
+- G-Shift + G10 (F2)  : Drink Conjured Water
+- G-Shift + G11 (F3)  : Deploy Campfire / Survival Tent (+5% to +10% Comfort XP)
+- G-Shift + G12 (F4)  : /fgmail Dump (ForeverGoblin 1-Click Bankalt Dump)
+- G-Shift + G13 (F5)  : /tar Qia & /tar Wixxrak (Everlook recipe cycle)
+- G-Shift + G14 (F6)  : Conjure Water / Food
+- G-Shift + G15 (F7)  : Teleport: Ironforge
+- G-Shift + G16 (F8)  : Teleport: Stormwind
+- G-Shift + G17 (F9)  : Hearthstone
+- G-Shift + G18 (F10) : /fgnight (19:30 Floating Combat Text disable)
+- G-Shift + G19 (F11) : /fgday (04:00 Floating Combat Text enable)
+- G-Shift + G20 (F12) : OBS Save Replay Buffer Hotkey (Feeds clip_watcher.py pipeline)

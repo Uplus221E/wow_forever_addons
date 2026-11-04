@@ -1,0 +1,14 @@
+## Interface: 16001, 110100, 110200, 120000, 120105, 11505, 40401, 30300, 11200
+## Title: ZeroMaint
+## Notes: Fault-tolerant, zero-dependency safe-zone and QoL suite.
+## Author: You
+## Version: 1.0.0
+## SavedVariables: ZeroMaintDB
+## OptionalDeps: Blizzard_EditMode, Blizzard_ObjectiveTracker, Blizzard_CompactRaidFrames, Blizzard_ArenaUI
+## IconTexture: Interface\Icons\INV_Misc_Gear_01
+
+ZeroMaint_Core.lua
+ZeroMaint_Layout.lua
+ZeroMaint_QoL.lua
+ZeroMaint_Profiles.lua
+ZeroMaint_Mail.lua

@@ -1,0 +1,6 @@
+ignore:
+  - Scripts
+  - Docs
+  - readme.md
+
+enable-toc-creation: yes

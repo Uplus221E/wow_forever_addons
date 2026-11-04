@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vanguard WoW: Forever Command HUD</title>
+<style>
+  :root {
+    --bg-base: #0a0d14;
+    --bg-card: #111726;
+    --bg-card-hover: #161f33;
+    --border-color: #1e293b;
+    --border-accent: #3b82f6;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --gold: #f59e0b;
+    --gold-glow: rgba(245, 158, 11, 0.25);
+    --green: #10b981;
+    --red: #ef4444;
+    --cyan: #06b6d4;
+    --amber-filter: sepia(100%) hue-rotate(335deg) saturate(220%) brightness(85%) contrast(95%);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+    padding: 12px;
+    transition: filter 0.4s ease;
+    overflow-x: hidden;
+  }
+
+  body.amber-mode {
+    filter: var(--amber-filter);
+  }
+
+  /* Header & Bio-Clock */
+  header {
+    background: linear-gradient(180deg, #161e31 0%, #0f172a 100%);
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+
+  .title-group h1 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .title-group h1 span {
+    color: var(--gold);
+    text-shadow: 0 0 10px var(--gold-glow);
+  }
+
+  .title-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .clock-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .live-clock {
+    font-size: 24px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: #38bdf8;
+    background: #0b1120;
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid #0284c7;
+    text-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+  }
+
+  .amber-toggle-btn {
+    background: #292524;
+    color: #fbbf24;
+    border: 1px solid #78350f;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .amber-toggle-btn:hover {
+    background: #451a03;
+    border-color: #b45309;
+  }
+
+  .amber-toggle-btn.active {
+    background: #d97706;
+    color: #000;
+    border-color: #f59e0b;
+    box-shadow: 0 0 10px var(--gold-glow);
+  }
+
+  /* Bio Timeline */
+  .bio-timeline {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+
+  .bio-phase {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 10.5px;
+    transition: all 0.25s ease;
+  }
+
+  .bio-phase .phase-time {
+    font-weight: 800;
+    color: #94a3b8;
+    font-size: 10px;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .bio-phase .phase-title {
+    font-weight: 700;
+    color: #cbd5e1;
+    display: block;
+  }
+
+  .bio-phase.active {
+    border-color: var(--cyan);
+    background: #082f49;
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+  }
+
+  .bio-phase.active .phase-title {
+    color: #38bdf8;
+  }
+
+  .bio-phase.cutoff-warning {
+    border-color: #991b1b;
+  }
+
+  .bio-phase.cutoff-warning.active {
+    animation: pulse-red 1.2s infinite;
+    background: #450a0a;
+    border-color: #ef4444;
+  }
+
+  @keyframes pulse-red {
+    0% { box-shadow: 0 0 4px #ef4444; }
+    50% { box-shadow: 0 0 16px #ef4444; }
+    100% { box-shadow: 0 0 4px #ef4444; }
+  }
+
+  /* Grid Layout for Panels */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 1200px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 800px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+    .bio-timeline {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 8px;
+  }
+
+  .card-header h2 {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .badge-gold { background: #78350f; color: #fde68a; }
+  .badge-blue { background: #0c4a6e; color: #bae6fd; }
+  .badge-green { background: #064e3b; color: #a7f3d0; }
+
+  /* Panel 1: Golden Sticky Note */
+  .sticky-box {
+    background: #1e1b18;
+    border: 1px solid #854d0e;
+    border-left: 4px solid var(--gold);
+    border-radius: 4px;
+    padding: 8px 10px;
+  }
+
+  .sticky-box h3 {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tag {
+    background: #27272a;
+    border: 1px solid #3f3f46;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10.5px;
+    color: #e4e4e7;
+  }
+
+  .tag.highlight {
+    background: #451a03;
+    border-color: #b45309;
+    color: #fef3c7;
+    font-weight: 700;
+  }
+
+  .tag.blue {
+    background: #172554;
+    border-color: #2563eb;
+    color: #bfdbfe;
+  }
+
+  .spell-rules {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .spell-rules ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .spell-rules li {
+    margin-bottom: 3px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .spell-rules li::before {
+    content: "•";
+    color: var(--cyan);
+    font-weight: bold;
+  }
+
+  /* Panel 2: Corridor & Trackers */
+  .tracker-section h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .check-item:hover {
+    background: #1e293b;
+  }
+
+  .check-item input[type="checkbox"] {
+    accent-color: var(--gold);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+
+  .check-item.done {
+    opacity: 0.55;
+    text-decoration: line-through;
+    border-color: #334155;
+  }
+
+  .corridor-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+  }
+
+  .corridor-table th {
+    background: #0f172a;
+    color: #94a3b8;
+    text-align: left;
+    padding: 4px 6px;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .corridor-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #161f30;
+  }
+
+  .corridor-table tr:hover td {
+    background: #162035;
+  }
+
+  /* Panel 3: Clipboard Bank */
+  .clip-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .clip-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #f1f5f9;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .clip-btn:hover {
+    background: #2563eb;
+    border-color: #60a5fa;
+  }
+
+  .clip-btn:active {
+    transform: scale(0.98);
+  }
+
+  .clip-btn .btn-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .clip-btn .btn-preview {
+    font-size: 10px;
+    color: #94a3b8;
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #059669;
+    color: #ffffff;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 9999;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header & Live Umeå Bio-Clock -->
+<header>
+  <div class="header-top">
+    <div class="title-group">
+      <h1><span>VANGUARD</span> WOW FOREVER LAUNCH HUD</h1>
+      <div class="title-sub">Dual-Client Station | WoW1 Alliance Gnome Mage &bull; WoW2 Ironforge Bank Mule</div>
+    </div>
+    <div class="clock-controls">
+      <div class="live-clock" id="liveClock">00:00:00</div>
+      <button class="amber-toggle-btn" id="amberToggle" onclick="toggleAmberMode()">
+        <span>🌙</span> <span id="amberLabel">1900K Amber Eye-Safe</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bio Phase Timeline -->
+  <div class="bio-timeline">
+    <div class="bio-phase" id="phase-fasted">
+      <span class="phase-time">04:00 – 14:00</span>
+      <span class="phase-title">FASTED APM WINDOW</span>
+      Water + Salt micro-sips only
+    </div>
+    <div class="bio-phase" id="phase-slurry">
+      <span class="phase-time">14:00 – 14:05</span>
+      <span class="phase-title">FLIGHT PATH SLURRY</span>
+      120g fine oats + tahini + pea protein
+    </div>
+    <div class="bio-phase" id="phase-plate">
+      <span class="phase-time">17:00 – 17:30</span>
+      <span class="phase-title">LOW-RESIDUE PLATE</span>
+      Potatoes/rice + yellow pea mash
+    </div>
+    <div class="bio-phase cutoff-warning" id="phase-cutoff">
+      <span class="phase-time">18:00 SHARP</span>
+      <span class="phase-title">HARD FLUID CUTOFF</span>
+      Zero liquids &bull; Void at 19:45/20:25
+    </div>
+    <div class="bio-phase" id="phase-ceasefire">
+      <span class="phase-time">19:30</span>
+      <span class="phase-title">CEASEFIRE & /fgnight</span>
+      Disable SCT &bull; Inn/Tent logistics
+    </div>
+    <div class="bio-phase" id="phase-sleep">
+      <span class="phase-time">20:15 – 20:30</span>
+      <span class="phase-title">3-MIN DUMP & SLEEP</span>
+      Hot water rinse &bull; Cognitive shuffle
+    </div>
+  </div>
+</header>
+
+<!-- Dashboard Main Grid -->
+<div class="dashboard-grid">
+
+  <!-- Column 1: The Golden Asset Sticky Note -->
+  <div class="card">
+    <div class="card-header">
+      <h2><span>💰</span> Golden Asset Sticky Note</h2>
+      <span class="badge badge-gold">Days 1–10 Hoard</span>
+    </div>
+
+    <div class="sticky-box">
+      <h3>Forever Scarce Procs (Herbs & Mines)</h3>
+      <div class="tag-cloud">
+        <span class="tag highlight">Pyrite</span>
+        <span class="tag highlight">Bauxite</span>
+        <span class="tag highlight">Pitchblende</span>
+        <span class="tag highlight">Frilled Lichen</span>
+        <span class="tag highlight">Rosecap</span>
+        <span class="tag highlight">Stranglevine</span>
+        <span class="tag highlight">Scarce Seeds</span>
+        <span class="tag">Molten Foundry BP</span>
+        <span class="tag">Campsite BP</span>
+      </div>
+    </div>
+
+    <div class="sticky-box">
+      <h3>Classic Raid Bottlenecks (Bankalt COD)</h3>
+      <div class="tag-cloud">
+        <span class="tag highlight">Elemental Earth</span>
+        <span class="tag highlight">Elemental Fire</span>
+        <span class="tag highlight">Arcane Crystals</span>
+        <span class="tag highlight">Black Lotus</span>
+        <span class="tag">Silversage</span>
+        <span class="tag">Plaguebloom</span>
+        <span class="tag">Dreamfoil</span>
+      </div>
+    </div>
+
+    <div class="sticky-box">
+      <h3>Twink BoE Blues (&lt; 3g Panic Buys)</h3>
+      <div class="tag-cloud">
+        <span class="tag blue">Shadowfang</span>
+        <span class="tag blue">Feet of the Lynx</span>
+        <span class="tag blue">The Butcher</span>
+        <span class="tag blue">Sentry Cloak</span>
+        <span class="tag blue">Staff of Jordan</span>
+      </div>
+    </div>
+
+    <div class="spell-rules">
+      <strong style="color: #38bdf8; display: block; margin-bottom: 4px;">Spell Training Discipline (Saves ~90g for Lvl 40 Mount):</strong>
+      <ul>
+        <li>Rank 1 Frost Nova &bull; Rank 1 Arcane Explosion</li>
+        <li>Max Rank Frostbolt &bull; Max Rank Blizzard</li>
+        <li>Max Rank Cone of Cold &bull; Teleport / Portal</li>
+        <li>Conjure Water & Food &bull; Wand finisher</li>
+        <li><strong style="color: #ef4444;">FORBIDDEN:</strong> All Fire spells, higher Nova ranks.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Column 2: 1-60 Corridor & Custom Dungeons -->
+  <div class="card">
+    <div class="card-header">
+      <h2><span>🗺️</span> 1–60 Corridor & Wand Spikes</h2>
+      <span class="badge badge-blue">RXP 1-20 &bull; Cleave</span>
+    </div>
+
+    <div class="tracker-section">
+      <h3>Wand Power Spikes</h3>
+      <div class="checklist">
+        <label class="check-item" id="item-w1">
+          <input type="checkbox" onchange="toggleItem('item-w1')">
+          <span><strong>Lvl 5:</strong> Lesser Magic Wand (11.3 DPS - AH / Enchanter)</span>
+        </label>
+        <label class="check-item" id="item-w2">
+          <input type="checkbox" onchange="toggleItem('item-w2')">
+          <span><strong>Lvl 13:</strong> Greater Magic Wand (17.5 DPS - AH / Enchanter)</span>
+        </label>
+        <label class="check-item" id="item-w3">
+          <input type="checkbox" onchange="toggleItem('item-w3')">
+          <span><strong>Lvl 18:</strong> Gravestone Scepter (29.4 DPS - BFD 1-and-done)</span>
+        </label>
+        <label class="check-item" id="item-w4">
+          <input type="checkbox" onchange="toggleItem('item-w4')">
+          <span><strong>Lvl 18–22:</strong> Staff of Westfall (+11 Int - Deadmines quest)</span>
+        </label>
+        <label class="check-item" id="item-w5">
+          <input type="checkbox" onchange="toggleItem('item-w5')">
+          <span><strong>Lvl 30:</strong> Icefury Wand (33.2 DPS +9 Frost SP - SM Lib quest)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="tracker-section">
+      <h3>Leveling Zone Corridor</h3>
+      <table class="corridor-table">
+        <thead>
+          <tr><th>Level</th><th>Primary Zone</th><th>Cleave Focus</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>1–20</strong></td><td>Dun Morogh &rarr; Loch &rarr; Darkshore</td><td>RXP Free Arrow</td></tr>
+          <tr><td><strong>20–25</strong></td><td>Redridge & Duskwood</td><td>Gnoll / Defias 3–6 Cleave</td></tr>
+          <tr><td><strong>25–30</strong></td><td>Duskwood & Wetlands</td><td>Mosshide Gnolls (Avoid Fen)</td></tr>
+          <tr><td><strong>30–36</strong></td><td>Hillsbrad & Arathi</td><td>Southshore Syndicate</td></tr>
+          <tr><td><strong>36–42</strong></td><td>STV / Dustwallow Murlocs</td><td>Desolace/Badlands backup</td></tr>
+          <tr><td><strong>42–48</strong></td><td>Tanaris & Hinterlands</td><td>Green Sludges backup</td></tr>
+          <tr><td><strong>48–54</strong></td><td>Un'Goro Crater & WPL</td><td>Single giant circular loop</td></tr>
+          <tr><td><strong>54–60</strong></td><td>EPL & Winterspring</td><td>48h node loop &rarr; DME</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tracker-section">
+      <h3>9 Custom Forever Dungeons (1-and-Done Full Quest)</h3>
+      <div class="checklist">
+        <label class="check-item" id="item-d1"><input type="checkbox" onchange="toggleItem('item-d1')"><span><strong>13–20:</strong> Hall of Thanes</span></label>
+        <label class="check-item" id="item-d2"><input type="checkbox" onchange="toggleItem('item-d2')"><span><strong>13–20:</strong> Ruins of Lordaeron</span></label>
+        <label class="check-item" id="item-d3"><input type="checkbox" onchange="toggleItem('item-d3')"><span><strong>24–33:</strong> Excavation Site</span></label>
+        <label class="check-item" id="item-d4"><input type="checkbox" onchange="toggleItem('item-d4')"><span><strong>24–33:</strong> City of Dalaran</span></label>
+        <label class="check-item" id="item-d5"><input type="checkbox" onchange="toggleItem('item-d5')"><span><strong>35–45:</strong> The Drowned City</span></label>
+        <label class="check-item" id="item-d6"><input type="checkbox" onchange="toggleItem('item-d6')"><span><strong>35–45:</strong> Krol'dok Stronghold</span></label>
+        <label class="check-item" id="item-d7"><input type="checkbox" onchange="toggleItem('item-d7')"><span><strong>48–60:</strong> Alcaz Prison</span></label>
+        <label class="check-item" id="item-d8"><input type="checkbox" onchange="toggleItem('item-d8')"><span><strong>48–60:</strong> Blackmaw Hold</span></label>
+        <label class="check-item" id="item-d9"><input type="checkbox" onchange="toggleItem('item-d9')"><span><strong>48–60:</strong> Shaper's Terrace</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 3: 1-Click Clipboard Bank -->
+  <div class="card">
+    <div class="card-header">
+      <h2><span>📋</span> 1-Click Clipboard Bank</h2>
+      <span class="badge badge-green">Instant Copy</span>
+    </div>
+
+    <div class="clip-button-group">
+      <button class="clip-btn" onclick="copyText('maxprice: vendorsell - 10c', 'TSM Vendor Arbitrage string copied!')">
+        <div class="btn-title"><span>TSM Vendor Arbitrage</span><span>🔗</span></div>
+        <div class="btn-preview">maxprice: vendorsell - 10c</div>
+      </button>
+
+      <button class="clip-btn" onclick="copyText('min(vendorsell - 10c, 3g)', 'TSM Fresh Sniper string copied!')">
+        <div class="btn-title"><span>TSM Fresh Server Sniper</span><span>🔗</span></div>
+        <div class="btn-preview">min(vendorsell - 10c, 3g)</div>
+      </button>
+
+      <button class="clip-btn" onclick="copyText('Hey! If your guild\'s levelers or gatherers have any scarce procs (Pyrite, Bauxite, Frilled Lichen, Elemental Fire/Earth), COD them all to Bankalt at fair market price. Instant payout within 60s, zero AH cut for your guys.', 'GM COD Whisper Pitch copied!')">
+        <div class="btn-title"><span>Guild Master COD Whisper</span><span>💬</span></div>
+        <div class="btn-preview">"Hey! If your guild's levelers or gatherers have..."</div>
+      </button>
+
+      <button class="clip-btn" onclick="copyText('Greetings GM! Setting up guaranteed bulk buyouts for your guild\'s raid prep. Send all raw Elemental Earth/Fire, Arcane Crystals, Black Lotus and high-tier herbs to our Ironforge bank alt (Bankalt). Guaranteed flat payout, COD instantly cleared every 30 mins. DM to lock in weekly rates.', 'GM Discord B2B Pitch copied!')">
+        <div class="btn-title"><span>GM Discord B2B Contract</span><span>📜</span></div>
+        <div class="btn-preview">"Greetings GM! Setting up guaranteed bulk buyouts..."</div>
+      </button>
+
+      <button class="clip-btn" onclick="copyText('Buying your Arcanite/Legionite Cooldown — 5g instant cash, my mats your click!', 'Trade Chat Cooldown Bark copied!')">
+        <div class="btn-title"><span>Trade Chat Cooldown Bark</span><span>📢</span></div>
+        <div class="btn-preview">"Buying your Arcanite/Legionite Cooldown — 5g..."</div>
+      </button>
+
+      <button class="clip-btn" onclick="copyText('/2 Buying ALL Elemental Earth, Elemental Fire, Pyrite, Frilled Lichen, Arcane Crystals & Scarce Seeds! Paying instant cash or COD me directly at Ironforge Bank!', 'Bankalt Trade Bark copied!')">
+        <div class="btn-title"><span>Bankalt Bulk Trade Bark</span><span>🏦</span></div>
+        <div class="btn-preview">"/2 Buying ALL Elemental Earth, Elemental Fire..."</div>
+      </button>
+
+      <button class="clip-btn" onclick="copyText('/fgroute', 'Winterspring Route Loader macro copied!')">
+        <div class="btn-title"><span>Route Loader Macro</span><span>🧭</span></div>
+        <div class="btn-preview">/fgroute</div>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast Popup -->
+<div class="toast" id="toast">
+  <span>✓</span> <span id="toastMsg">Copied to clipboard</span>
+</div>
+
+<script>
+  // Live Bio-Clock & Phase Tracker
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('liveClock').textContent = `${h}:${m}:${s}`;
+
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // Clear active classes
+    document.querySelectorAll('.bio-phase').forEach(el => el.classList.remove('active'));
+
+    // Check phases (in minutes from midnight)
+    // 04:00 - 14:00 (240 to 840)
+    if (currentMinutes >= 240 && currentMinutes < 840) {
+      document.getElementById('phase-fasted').classList.add('active');
+    }
+    // 14:00 - 14:05 (840 to 845)
+    else if (currentMinutes >= 840 && currentMinutes < 845) {
+      document.getElementById('phase-slurry').classList.add('active');
+    }
+    // 17:00 - 17:30 (1020 to 1050)
+    else if (currentMinutes >= 1020 && currentMinutes < 1050) {
+      document.getElementById('phase-plate').classList.add('active');
+    }
+    // 18:00 - 19:30 (1080 to 1170) -> Fluid cutoff period
+    else if (currentMinutes >= 1080 && currentMinutes < 1170) {
+      document.getElementById('phase-cutoff').classList.add('active');
+    }
+    // 19:30 - 20:15 (1170 to 1215) -> Ceasefire
+    else if (currentMinutes >= 1170 && currentMinutes < 1215) {
+      document.getElementById('phase-ceasefire').classList.add('active');
+    }
+    // 20:15 - 04:00 (1215 to 1440 or 0 to 240) -> Sleep
+    else {
+      document.getElementById('phase-sleep').classList.add('active');
+    }
+
+    // Auto-engage 1900K Amber Mode between 19:30 and 04:00 unless manually overridden
+    if ((currentMinutes >= 1170 || currentMinutes < 240) && !sessionStorage.getItem('amberManualOverride')) {
+      setAmberMode(true);
+    }
+  }
+
+  // 1900K Amber Eye-Safe Mode Toggle
+  function setAmberMode(enabled) {
+    const btn = document.getElementById('amberToggle');
+    if (enabled) {
+      document.body.classList.add('amber-mode');
+      btn.classList.add('active');
+      document.getElementById('amberLabel').textContent = 'Amber 1900K ACTIVE';
+    } else {
+      document.body.classList.remove('amber-mode');
+      btn.classList.remove('active');
+      document.getElementById('amberLabel').textContent = '1900K Amber Eye-Safe';
+    }
+  }
+
+  function toggleAmberMode() {
+    sessionStorage.setItem('amberManualOverride', 'true');
+    const isAmber = document.body.classList.contains('amber-mode');
+    setAmberMode(!isAmber);
+  }
+
+  // Clipboard Copy with Toast Feedback
+  function copyText(text, message) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => showToast(message));
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      showToast(message);
+    }
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = message || 'Copied to clipboard';
+    toast.style.display = 'flex';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 2200);
+  }
+
+  // LocalStorage Checklist Persistence
+  function toggleItem(id) {
+    const el = document.getElementById(id);
+    const checkbox = el.querySelector('input[type="checkbox"]');
+    if (checkbox.checked) {
+      el.classList.add('done');
+      localStorage.setItem('vhud_' + id, 'true');
+    } else {
+      el.classList.remove('done');
+      localStorage.removeItem('vhud_' + id);
+    }
+  }
+
+  function restoreChecklists() {
+    document.querySelectorAll('.check-item').forEach(el => {
+      const id = el.id;
+      if (localStorage.getItem('vhud_' + id) === 'true') {
+        const cb = el.querySelector('input[type="checkbox"]');
+        if (cb) cb.checked = true;
+        el.classList.add('done');
+      }
+    });
+  }
+
+  // Initialization
+  setInterval(updateClock, 1000);
+  updateClock();
+  restoreChecklists();
+</script>
+</body>
+</html>

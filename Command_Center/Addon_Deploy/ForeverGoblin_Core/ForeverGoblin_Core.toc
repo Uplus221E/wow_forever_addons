@@ -1,0 +1,8 @@
+## Interface: 11500, 11200
+## Title: |cff00ff00ForeverGoblin Core|r
+## Notes: Auto-Qia Recipe Snipe, 1-Click Bank Alt Mailer, Auto-Vendor Grays, and Winterspring Route Loader
+## Author: Vanguard
+## Version: 1.0.0
+## SavedVariables: ForeverGoblinDB
+
+ForeverGoblin_Core.lua

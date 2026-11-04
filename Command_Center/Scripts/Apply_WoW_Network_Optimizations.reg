@@ -1,0 +1,30 @@
+Windows Registry Editor Version 5.00
+
+; ==============================================================================
+; WoW: Forever Network & Latency Optimization (Leatrix TCP + System Throttling)
+; ==============================================================================
+
+; Disable Nagle's Algorithm and Delayed ACKs on Realtek GbE Ethernet
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{2BBEDA65-A4EE-4C49-A0D6-19DA53877AC8}]
+"TcpAckFrequency"=dword:00000001
+"TCPNoDelay"=dword:00000001
+
+; Disable Windows Network Throttling during 3D Gaming
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile]
+"NetworkThrottlingIndex"=dword:ffffffff
+"SystemResponsiveness"=dword:00000000
+
+; Give 100% CPU scheduling priority to foreground games
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games]
+"GPU Priority"=dword:00000008
+"Priority"=dword:00000006
+"Scheduling Category"="High"
+"SFIO Priority"="High"
+
+; Enable Windows 11 Optimizations for Windowed Games (DXGI Modern Flip Model)
+[HKEY_CURRENT_USER\Software\Microsoft\DirectX\UserGpuPreferences]
+"DirectXUserGlobalSettings"="SwapEffectUpgradeEnable=1;"
+
+; Disable Windows 11 DWM Transparency Effects (Reduces compositor GPU memory & frame latency)
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize]
+"EnableTransparency"=dword:00000000
